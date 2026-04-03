@@ -1,59 +1,49 @@
 import requests
-import json
 
 def emotion_detector(text_to_analyse):
-    """
-    Sends text to Watson Emotion API and returns formatted emotions
-    with dominant emotion detection.
-    """
-
-    # API endpoint
-    url = "https://sn-watson-emotion.labs.skills.network/v1/" \
-          "watson.runtime.nlp.v1/NlpService/EmotionPredict"
-
-    # Headers
-    headers = {
-        "grpc-metadata-mm-model-id":
-        "emotion_aggregated-workflow_lang_en_stock"
-    }
-
-    # Payload
-    payload = {
+    url = 'https://sn-watson-sentiment-bert.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
+    
+    myobj = {
         "raw_document": {
             "text": text_to_analyse
         }
     }
 
-    # API request
-    response = requests.post(url, json=payload, headers=headers)
-
-    # Error handling
-    if response.status_code != 200:
-        return None
-
-    response_dict = json.loads(response.text)
-
-    try:
-        emotions = response_dict["emotionPredictions"][0]["emotion"]
-    except (KeyError, IndexError):
-        return None
-
-    # Ensure required emotions exist (safe extraction)
-    required_emotions = {
-        "anger": emotions.get("anger", 0),
-        "disgust": emotions.get("disgust", 0),
-        "fear": emotions.get("fear", 0),
-        "joy": emotions.get("joy", 0),
-        "sadness": emotions.get("sadness", 0)
+    headers = {
+        "grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_multi_stock"
     }
 
-    dominant_emotion = max(required_emotions, key=required_emotions.get)
+    response = requests.post(url, json=myobj, headers=headers)
+
+    # ✅ TASK 7: Handle blank input / bad request
+    if response.status_code == 400:
+        return {
+            "anger": None,
+            "disgust": None,
+            "fear": None,
+            "joy": None,
+            "sadness": None,
+            "dominant_emotion": None
+        }
+
+    # normal response processing
+    result = response.json()
+
+    emotions = result['emotionPredictions'][0]['emotion']
+
+    anger = emotions['anger']
+    disgust = emotions['disgust']
+    fear = emotions['fear']
+    joy = emotions['joy']
+    sadness = emotions['sadness']
+
+    dominant_emotion = max(emotions, key=emotions.get)
 
     return {
-        "anger": required_emotions["anger"],
-        "disgust": required_emotions["disgust"],
-        "fear": required_emotions["fear"],
-        "joy": required_emotions["joy"],
-        "sadness": required_emotions["sadness"],
+        "anger": anger,
+        "disgust": disgust,
+        "fear": fear,
+        "joy": joy,
+        "sadness": sadness,
         "dominant_emotion": dominant_emotion
     }
