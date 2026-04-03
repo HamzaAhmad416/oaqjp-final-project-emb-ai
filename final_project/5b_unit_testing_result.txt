@@ -1,0 +1,8 @@
+=========================== test session starts ============================
+platform linux -- Python 3.10.12, pytest-9.0.2, pluggy-1.6.0
+rootdir: /home/project/oaqjp-final-project-emb-ai/final_project
+collected 5 items                                                          
+
+test_emotion_detection.py .....                                      [100%]
+
+============================ 5 passed in 0.83s =============================
