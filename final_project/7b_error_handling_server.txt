@@ -1,0 +1,2 @@
+if result["dominant_emotion"] is None:
+    return "Invalid text! Please try again!"
